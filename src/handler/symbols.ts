@@ -65,6 +65,31 @@ export default class Symbols {
     return buf?.getSymbols()
   }
 
+  public async getCurrentFunctionInfo(bufnr?: number): Promise< any[]> {
+    if (!bufnr) bufnr = await this.nvim.call('bufnr', ['%'])
+    let doc = workspace.getDocument(bufnr)
+    if (!doc || !doc.attached) return []
+    if (!languages.hasProvider('documentSymbol', doc.textDocument)) return []
+    let position = await window.getCursorPosition()
+    let symbols = await this.getDocumentSymbols(bufnr)
+    if (!symbols || symbols.length === 0) {
+      return []
+    }
+    let info = []
+    for (let sym of symbols.reverse()) {
+      if (sym.range
+        && positionInRange(position, sym.range) == 0
+        && !sym.text.endsWith(') callback')) {
+		  let functionName = sym.text
+		  let functionStart = sym.range.start
+		  let functionEnd = sym.range.end
+		  info = [functionName, functionStart, functionEnd]
+        break
+      }
+    }
+    return info
+  }
+
   public async getCurrentFunctionSymbol(bufnr?: number): Promise<string> {
     if (!bufnr) bufnr = await this.nvim.call('bufnr', ['%'])
     let doc = workspace.getDocument(bufnr)

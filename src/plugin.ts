@@ -202,6 +202,11 @@ export default class Plugin extends EventEmitter {
     this.addAction('references', () => this.handler.locations.references())
     this.addAction('jumpUsed', openCommand => this.handler.locations.gotoReferences(openCommand, false))
     this.addAction('doHover', hoverTarget => this.handler.hover.onHover(hoverTarget))
+	this.addAction('doHoverLine', async (hoverTarget) => {
+		  // info is of type [funcName: string, start: Position, End: Position]
+		  let info = await this.handler.symbols.getCurrentFunctionInfo()
+		  this.handler.hover.onHoverLine(info, hoverTarget)
+	})
     this.addAction('getHover', () => this.handler.hover.getHover())
     this.addAction('showSignatureHelp', () => this.handler.signature.triggerSignatureHelp())
     this.addAction('documentSymbols', async (bufnr?: number) => {

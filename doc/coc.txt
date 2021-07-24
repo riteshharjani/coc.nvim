@@ -1214,7 +1214,7 @@ line.
 	server.
 
 *<Plug>(coc-funcobj-a)*
-			
+
 	Select around function.  Works on both |visual-mode| and
 	|normal-mode|.  Recommended mapping:
 >
@@ -2000,6 +2000,16 @@ Acceptable {action} names for |CocAction()| and |CocActionAsync|.
 	{hoverTarget}: optional specification for where to show hover info,
 	defaults to `coc.preferences.hoverTarget` in `coc-settings.json`.
 	Valid options: ["preview", "echo", "float"]
+
+"doHoverLine" [{hoverTarget}]					*coc-action-doHoverLine*
+
+	Show documentation of the current scope in a preview window.
+	Return `v:false` when hover not found.
+
+	{hoverTarget}: optional specification for where to show hover info,
+	defaults to `coc.preferences.hoverTarget` in `coc-settings.json`.
+	Valid options: ["preview", "echo", "float"]
+
 
 "getHover"						*coc-action-getHover*
 

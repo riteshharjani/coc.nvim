@@ -60,6 +60,38 @@ export default class HoverHandler {
     }
   }
 
+  public async onHoverLine(info: any[], hoverTarget?: HoverTarget): Promise<boolean> {
+	let { doc, position, winid } = await this.handler.getCurrentState()
+
+	// get line and start character of the function name
+	if (info.length == 0) return false
+	let line = doc.getline(info[1].line)
+	let character = line.indexOf(info[0])
+	if (character == -1) return false
+	position.line = info[1].line
+	position.character = character
+
+	this.handler.checkProvier('hover', doc.textDocument)
+    this.hoverFactory.close()
+    await doc.synchronize()
+    let hovers = await this.handler.withRequestToken('hover', token => {
+      return languages.getHover(doc.textDocument, position, token)
+    }, true)
+    if (hovers == null || !hovers.length) return false
+    let hover = hovers.find(o => Range.is(o.range))
+    if (hover?.range) {
+      let win = this.nvim.createWindow(winid)
+      win.highlightRanges('CocHoverRange', [hover.range], 99, true)
+      this.timer = setTimeout(() => {
+        win.clearMatchGroup('CocHoverRange')
+        if (workspace.isVim) this.nvim.command('redraw', true)
+      }, 500)
+    }
+    await this.previewHover(hovers, hoverTarget)
+    return true
+  }
+
+
   public async onHover(hoverTarget?: HoverTarget): Promise<boolean> {
     let { doc, position, winid } = await this.handler.getCurrentState()
     this.handler.checkProvier('hover', doc.textDocument)
